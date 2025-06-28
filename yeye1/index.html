@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生日快乐！亲爱的闺蜜</title>
+    <style>
+        /* 信封页面样式 */
+        .envelope-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: all 0.5s ease;
+        }
+        
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background: #fff;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+        }
+        
+        .envelope:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #f8bbd0;
+            transform-origin: top;
+            transform: rotateX(0deg);
+            z-index: 2;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .envelope:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid #f48fb1;
+            z-index: 1;
+        }
+        
+        .seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: #e91e63;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 3;
+            transition: all 0.3s;
+        }
+        
+        .seal:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .envelope.open {
+            transform: translateY(-100px) rotateX(180deg);
+        }
+        
+        .envelope.open:before {
+            transform: rotateX(180deg);
+        }
+
+        /* 生日页面样式 - 浪漫渐变背景 */
+        .birthday-page {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #fee9ed 30%, 
+                #f8bbd0 50%, 
+                #fde7ed 60%);
+        }
+
+        /* 强化漂浮爱心背景 */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff0000"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center center;
+            background-size: contain;
+            animation: float linear forwards;
+            bottom: -30px;
+            filter: drop-shadow(0 0 5px rgba(255,0,0,0.7));
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* 基础样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e91e63;
+            margin-top: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 心跳动画 */
+        .heart {
+            position: relative;
+            width: 100px;
+            height: 90px;
+            margin: 50px auto;
+            animation: heartbeat 1.5s infinite;
+            filter: drop-shadow(0 0 10px rgba(233,30,99,0.5));
+        }
+        
+        .heart:before, .heart:after {
+            position: absolute;
+            content: "";
+            left: 50px;
+            top: 0;
+            width: 50px;
+            height: 80px;
+            background: #ff5252;
+            border-radius: 50px 50px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        
+        .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 卡片样式 */
+        .message, .timeline, .countdown {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .photo-frame {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid #e91e63;
+            margin: 20px auto;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #e91e63, #f48fb1);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            margin: 10px;
+            transition: all 0.3s;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(233,30,99,0.3);
+        }
+        
+        .btn:hover {
+            background: linear-gradient(45deg, #c2185b, #e91e63);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(233,30,99,0.4);
+        }
+        
+        /* 倒计时样式 */
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .countdown-item {
+            margin: 10px;
+            min-width: 70px;
+        }
+        
+        .countdown-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e91e63;
+        }
+        
+        .countdown-label {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        /* 音乐控制按钮 */
+        .music-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #e91e63, #f48fb1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 特效元素 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+        }
+        
+        .small-heart {
+            position: fixed;
+            width: 30px;
+            height: 27px;
+            opacity: 0;
+        }
+        
+        .small-heart:before, .small-heart:after {
+            position: absolute;
+            content: "";
+            left: 15px;
+            top: 0;
+            width: 15px;
+            height: 24px;
+            background: #ff5252;
+            border-radius: 15px 15px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        
+        .small-heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+        
+        .big-heart {
+            position: fixed;
+            width: 150px;
+            height: 135px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            opacity: 0;
+        }
+        
+        .big-heart:before, .big-heart:after {
+            position: absolute;
+            content: "";
+            left: 75px;
+            top: 0;
+            width: 75px;
+            height: 120px;
+            background: #ff5252;
+            border-radius: 75px 75px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        
+        .big-heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .envelope {
+                width: 250px;
+                height: 170px;
+            }
+            
+            .envelope:before {
+                border-left: 125px solid transparent;
+                border-right: 125px solid transparent;
+                border-top: 85px solid #f8bbd0;
+            }
+            
+            .envelope:after {
+                border-left: 125px solid transparent;
+                border-right: 125px solid transparent;
+                border-bottom: 85px solid #f48fb1;
+            }
+            
+            .seal {
+                width: 60px;
+                height: 60px;
+                font-size: 12px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown-item {
+                min-width: 60px;
+            }
+            
+            .countdown-number {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 红色漂浮爱心背景 -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+    
+    <!-- 信封启动页面 -->
+    <div class="envelope-page" id="envelopePage">
+        <div class="envelope" id="envelope">
+            <div class="seal" id="seal">点击拆开</div>
+        </div>
+        <p style="margin-top: 30px; color: #e91e63; font-size: 18px;">点击信封上的印章拆开</p>
+    </div>
+    
+    <!-- 生日祝福页面 -->
+    <div class="birthday-page" id="birthdayPage">
+        <div class="container">
+            <h1>生日快乐！我亲爱的婆婆子酱</h1>
+            
+            <div class="heart"></div>
+            
+            <div class="photo-frame">
+                <!-- 替换成你闺蜜的照片 -->
+                <img src="/yeye.png" alt="闺蜜照片">
+            </div>
+            
+            <div class="message">
+                <p>亲爱的<strong>老婆酱~</strong>：</p>
+                <p>今天是你的特别日子，祝你生日快乐！🎉</p>
+                <p>感谢有你陪伴的每一天，以爱之名判你无期徒刑。</p>
+                <p>既求荣华富贵，也求一丝真情！</p>
+                <p>我们永远爱你！❤️</p>
+                <p>—— <em>老婆酱酱~</em></p>
+            </div>
+            
+            <a href="javascript:void(0);" class="btn" onclick="showLove()">点击收下我的爱</a>
+            <a href="javascript:void(0);" class="btn" onclick="createConfetti()">撒花庆祝</a>
+            
+            <!-- 相识时间倒计时 -->
+            <div class="countdown">
+                <h2>我们的友谊已经持续</h2>
+                <div class="countdown-container" id="countdownContainer">
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="years">0</div>
+                        <div class="countdown-label">年</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="months">0</div>
+                        <div class="countdown-label">月</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="days">0</div>
+                        <div class="countdown-label">日</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="hours">0</div>
+                        <div class="countdown-label">小时</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="minutes">0</div>
+                        <div class="countdown-label">分钟</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="seconds">0</div>
+                        <div class="countdown-label">秒</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <h2>我们的友谊时光轴</h2>
+                <p>👭 相识：2020年9月1日</p>
+                <p>🍰 一起过的生日：5次</p>
+                <p>📸 合照：无数张</p>
+                <p>❤️ 美好回忆：数不清</p>
+            </div>
+        </div>
+        
+        <div class="music-btn" onclick="toggleMusic()">🔊</div>
+    </div>
+    
+    <!-- 音乐播放器 -->
+    <audio id="bgMusic" loop>
+        <source src="./tbdr.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // ============== 信封动画 ==============
+        const envelope = document.getElementById('envelope');
+        const seal = document.getElementById('seal');
+        const envelopePage = document.getElementById('envelopePage');
+        const birthdayPage = document.getElementById('birthdayPage');
+        
+        seal.addEventListener('click', function() {
+            // 播放信封打开动画
+            envelope.classList.add('open');
+            
+            // 动画结束后显示生日页面
+            setTimeout(() => {
+                envelopePage.style.opacity = '0';
+                setTimeout(() => {
+                    envelopePage.style.display = 'none';
+                    birthdayPage.style.display = 'block';
+                    setTimeout(() => {
+                        birthdayPage.style.opacity = '1';
+                        // 页面显示后立即播放音乐
+                        initAudioPlayback();
+                        // 开始漂浮心形动画
+                        startFloatingHearts();
+                        // 开始倒计时
+                        startCountdown();
+                    }, 50);
+                }, 500);
+            }, 800);
+        });
+        
+        // ============== 音乐播放控制 ==============
+        const music = document.getElementById('bgMusic');
+        let isMusicPlaying = false;
+        
+        // 设置音乐音量
+        music.volume = 0.6;
+        
+        function toggleMusic() {
+            if(music.volume > 0.5) {
+                music.volume = 0.2;
+                document.querySelector('.music-btn').textContent = '🔈';
+            } else {
+                music.volume = 0.6;
+                document.querySelector('.music-btn').textContent = '🔊';
+            }
+        }
+        
+        // 自动播放音乐
+        function initAudioPlayback() {
+            // 先尝试静音播放
+            music.muted = true;
+            const playPromise = music.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // 播放成功后再取消静音
+                    music.muted = false;
+                    isMusicPlaying = true;
+                }).catch(error => {
+                    // 如果静音播放也失败，尝试用户交互后播放
+                    document.addEventListener('click', function() {
+                        music.muted = false;
+                        music.play();
+                    }, { once: true });
+                });
+            }
+        }
+        
+        // ============== 红色漂浮爱心背景 ==============
+        function startFloatingHearts() {
+            const floatingHearts = document.getElementById('floatingHearts');
+            
+            function createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                
+                // 随机位置
+                const startPos = Math.random() * 100;
+                heart.style.left = `${startPos}%`;
+                
+                // 随机大小 (25-45px)
+                const size = Math.random() * 20 + 25;
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                
+                // 随机动画速度 (8-15秒完成一次漂浮)
+                const duration = Math.random() * 7 + 8;
+                heart.style.animationDuration = `${duration}s`;
+                
+                floatingHearts.appendChild(heart);
+                
+                // 动画结束后移除
+                setTimeout(() => {
+                    heart.remove();
+                }, duration * 1000);
+            }
+            
+            // 初始创建30个爱心
+            for (let i = 0; i < 30; i++) {
+                setTimeout(createHeart, i * 200);
+            }
+            
+            // 持续创建爱心 (每0.5秒一个)
+            setInterval(createHeart, 500);
+        }
+        
+        // ============== 相识时间倒计时 ==============
+        function startCountdown() {
+            // 相识日期：2020年9月1日
+            const startDate = new Date('2020-09-01T00:00:00');
+            
+            function updateCountdown() {
+                const now = new Date();
+                
+                // 计算总毫秒差
+                const diff = now - startDate;
+                
+                // 计算年数
+                let years = now.getFullYear() - startDate.getFullYear();
+                
+                // 计算月份（考虑是否已经过了周年日）
+                let months = now.getMonth() - startDate.getMonth();
+                if (months < 0 || (months === 0 && now.getDate() < startDate.getDate())) {
+                    years--;
+                    months += 12;
+                }
+                
+                // 计算天数
+                const startDateThisYear = new Date(now.getFullYear(), startDate.getMonth(), startDate.getDate());
+                let days = Math.floor((now - startDateThisYear) / (1000 * 60 * 60 * 24));
+                if (days < 0) {
+                    // 如果还没到今年的周年日
+                    const startDateLastYear = new Date(now.getFullYear() - 1, startDate.getMonth(), startDate.getDate());
+                    days = Math.floor((now - startDateLastYear) / (1000 * 60 * 60 * 24));
+                }
+                
+                // 计算小时、分钟、秒
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+                
+                // 更新显示
+                document.getElementById('years').textContent = years;
+                document.getElementById('months').textContent = months;
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+                document.getElementById('minutes').textContent = minutes;
+                document.getElementById('seconds').textContent = seconds;
+            }
+            
+            // 立即更新一次
+            updateCountdown();
+            
+            // 每秒更新一次
+            setInterval(updateCountdown, 1000);
+        }
+        
+        // ============== 特效函数 ==============
+        // 创建爱心爆炸效果
+        function showLove() {
+            // 创建大爱心
+            const bigHeart = document.createElement('div');
+            bigHeart.className = 'big-heart';
+            document.body.appendChild(bigHeart);
+            
+            // 显示大爱心
+            setTimeout(() => {
+                bigHeart.style.opacity = '1';
+                bigHeart.style.transition = 'all 0.5s';
+                bigHeart.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                
+                // 爆炸成小爱心
+                setTimeout(() => {
+                    bigHeart.style.opacity = '0';
+                    createSmallHearts();
+                    
+                    // 移除大爱心
+                    setTimeout(() => {
+                        bigHeart.remove();
+                    }, 500);
+                }, 500);
+            }, 10);
+        }
+        
+        // 创建小爱心向四周散开
+        function createSmallHearts() {
+            const colors = ['#ff5252', '#e91e63', '#ff4081', '#f50057', '#ff1744'];
+            
+            for (let i = 0; i < 50; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'small-heart';
+                heart.style.left = '50%';
+                heart.style.top = '50%';
+                heart.style.opacity = '1';
+                heart.style.transform = 'translate(-50%, -50%)';
+                heart.style.zIndex = '99';
+                
+                // 随机颜色
+                heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+                document.body.appendChild(heart);
+                
+                // 设置动画
+                setTimeout(() => {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 100 + Math.random() * 300;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    
+                    heart.style.transition = 'all 1s ease-out';
+                    heart.style.transform = `translate(${x}px, ${y}px)`;
+                    heart.style.opacity = '0';
+                    
+                    // 移除爱心
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 1000);
+                }, 10);
+            }
+        }
+        
+        // 创建万花筒式彩色纸屑效果
+        function createConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            
+            for (let i = 0; i < 300; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = '50%';
+                confetti.style.top = '50%';
+                confetti.style.width = Math.random() * 15 + 5 + 'px';
+                confetti.style.height = Math.random() * 15 + 5 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.opacity = '1';
+                confetti.style.transform = 'translate(-50%, -50%)';
+                document.body.appendChild(confetti);
+                
+                // 设置动画
+                setTimeout(() => {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 50 + Math.random() * 400;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    const rotation = Math.random() * 720;
+                    
+                    confetti.style.transition = `all ${2 + Math.random() * 3}s ease-out`;
+                    confetti.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+                    confetti.style.opacity = '0';
+                    
+                    // 移除纸屑
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, 10);
+            }
+        }
+    </script>
+</body>
+</html>
